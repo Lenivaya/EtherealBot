@@ -34,7 +34,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	bot.Debug = false
+	bot.Debug = configuration.debug
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
