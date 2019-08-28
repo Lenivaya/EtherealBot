@@ -3,7 +3,7 @@ package main
 
 import (
 	"encoding/json"
-"flag"
+	"flag"
 	"fmt"
 	"log"
 	"os"
