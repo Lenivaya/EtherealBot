@@ -13,10 +13,14 @@ import (
 
 type Config struct {
 	TelegramBotToken string
+	debug            bool
 }
 
 func main() {
-	file, _ := os.Open("config.json")
+	var config string
+	flag.StringVar(&config, "c", "config.json", "determine what config to use")
+	flag.Parse()
+	file, _ := os.Open(config)
 	decoder := json.NewDecoder(file)
 	configuration := Config{}
 	err := decoder.Decode(&configuration)
