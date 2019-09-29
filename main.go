@@ -20,7 +20,7 @@ func main() {
 	var config string
 	configuration := Config{}
 
-	flag.StringVar(&config, "c", "config.json", "determine what config to use")
+	flag.StringVar(&config, "c", os.Getenv("HOME") + "/.config/EtherealBot/config.json", "determine what config to use")
 	flag.Parse()
 
 	file, _ := os.Open(config)
