@@ -17,13 +17,13 @@ type Config struct {
 }
 
 func main() {
-	var config string
+	var ConfigPath string
 	configuration := Config{}
 
-	flag.StringVar(&config, "c", os.Getenv("HOME") + "/.config/EtherealBot/config.json", "determine what config to use")
+	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME") + "/.config/EtherealBot/config.json", "determine what config to use")
 	flag.Parse()
 
-	file, _ := os.Open(config)
+	file, _ := os.Open(ConfigPath)
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&configuration)
 	if err != nil {
