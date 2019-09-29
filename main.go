@@ -18,11 +18,13 @@ type Config struct {
 
 func main() {
 	var config string
+	configuration := Config{}
+
 	flag.StringVar(&config, "c", "config.json", "determine what config to use")
 	flag.Parse()
+
 	file, _ := os.Open(config)
 	decoder := json.NewDecoder(file)
-	configuration := Config{}
 	err := decoder.Decode(&configuration)
 	if err != nil {
 		log.Panic(err)
@@ -45,18 +47,27 @@ func main() {
 	}
 
 	for update := range updates {
-		var reply string
 		if update.Message == nil {
 			continue
 		}
+		if !update.Message.IsCommand() {
+			continue
+		}
+
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+
 		switch update.Message.Command() {
 		case "help":
-			reply = "This is help"
-		case "@ethereality_bot":
-			reply = "Hello"
+			msg.Text = "This is help"
+		case "host":
+			msg.Text, _ = os.Hostname()
+		default:
 		}
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, reply)
+
 		msg.ReplyToMessageID = update.Message.MessageID
+
 		bot.Send(msg)
 	}
 }
