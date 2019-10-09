@@ -10,6 +10,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// Config structure
 type Config struct {
 	TelegramBotToken string
 	debug            bool
@@ -19,13 +20,12 @@ func main() {
 	var ConfigPath string
 	configuration := Config{}
 
-	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME") + "/.config/EtherealBot/config.json", "determine what config to use")
+	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.json", "determine what config to use")
 	flag.Parse()
 
 	file, _ := os.Open(ConfigPath)
 	decoder := json.NewDecoder(file)
-	err := decoder.Decode(&configuration)
-	if err != nil {
+	if err := decoder.Decode(&configuration); err != nil {
 		log.Panic(err)
 	}
 	fmt.Printf("Using %s\n", configuration.TelegramBotToken)
@@ -46,15 +46,11 @@ func main() {
 	}
 
 	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-		if !update.Message.IsCommand() {
+		if update.Message == nil && !update.Message.IsCommand() {
 			continue
 		}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 		switch update.Message.Command() {
@@ -62,7 +58,13 @@ func main() {
 			msg.Text = "This is help"
 		case "host":
 			msg.Text, _ = os.Hostname()
+		case "randomshit":
+			msg.Text, err = GetRandomShittyImage(update.Message.Text)
+			if err != nil {
+				log.Printf("Something went wrong: %s", err)
+			}
 		default:
+			msg.Text = "Sorry, i cant understand..."
 		}
 
 		msg.ReplyToMessageID = update.Message.MessageID
