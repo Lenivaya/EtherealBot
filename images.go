@@ -28,6 +28,10 @@ func GetRandomShittyImage(message string) (image string, err error) {
 	url := fmt.Sprintf("http://www.google.com/search?q=%s&tbm=isch", *searchWord)
 	resp, err := http.Get(url)
 
+	if err != nil {
+		return "", err
+	}
+
 	if resp != nil && resp.StatusCode == 200 {
 		defer resp.Body.Close()
 		body, _ := ioutil.ReadAll(resp.Body)
@@ -51,13 +55,13 @@ func GetRandomShittyImage(message string) (image string, err error) {
 }
 
 // Gets random wallpaper page from wallhaven
-func GetRandomWallFromWallhaven() (wallpage string) {
+func GetRandomWallFromWallhaven() (wallpage string, err error) {
 	url := "https://wallhaven.cc/random"
 
 	resp, err := http.Get(url)
 
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	if resp != nil && resp.StatusCode == 200 {
@@ -75,15 +79,18 @@ func GetRandomWallFromWallhaven() (wallpage string) {
 
 		rand.Seed(time.Now().UnixNano())
 		wall := fmt.Sprint(Walls[rand.Intn(len(Walls))])
-		return wall
+		return wall, err
 	}
 
-	return ""
+	return "", err
 }
 
 // Gets a link of the wallpaper itself
 func GetWallFromWallhaven() (wallpaper string, err error) {
-	wallpage := GetRandomWallFromWallhaven()
+	wallpage, err := GetRandomWallFromWallhaven()
+	if err != nil {
+		return "", err
+	}
 
 	resp, err := http.Get(wallpage)
 
