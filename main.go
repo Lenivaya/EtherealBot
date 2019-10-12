@@ -1,39 +1,42 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"log"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/pelletier/go-toml"
 )
 
-// Config structure
-type Config struct {
+type Telegram struct {
 	TelegramBotToken string
 	debug            bool
+}
+
+type Config struct {
+	Telegram Telegram
 }
 
 func main() {
 	var ConfigPath string
 	configuration := Config{}
 
-	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.json", "determine what config to use")
+	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.toml", "determine what config to use")
 	flag.Parse()
 
 	file, _ := os.Open(ConfigPath)
-	decoder := json.NewDecoder(file)
+	decoder := toml.NewDecoder(file)
 	if err := decoder.Decode(&configuration); err != nil {
 		log.Panic(err)
 	}
-	log.Printf("Using %s\n", configuration.TelegramBotToken)
 
-	bot, err := tgbotapi.NewBotAPI(configuration.TelegramBotToken)
+	bot, err := tgbotapi.NewBotAPI(configuration.Telegram.TelegramBotToken)
 	if err != nil {
 		log.Panic(err)
 	}
-	bot.Debug = configuration.debug
+	bot.Debug = configuration.Telegram.debug
+	log.Printf("Using %s\n", configuration.Telegram.TelegramBotToken)
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)

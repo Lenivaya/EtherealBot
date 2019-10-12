@@ -1,0 +1,3 @@
+[Telegram]
+TelegramBotToken = "" # tokken here
+debug = false
