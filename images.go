@@ -95,7 +95,7 @@ func GetWallFromWallhaven() (wallpaper string, err error) {
 	resp, err := http.Get(wallpage)
 
 	if err != nil {
-		fmt.Println(err)
+		return "", err
 	}
 
 	if resp != nil {
