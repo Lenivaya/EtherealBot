@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"io/ioutil"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pelletier/go-toml"
 )
@@ -25,11 +27,8 @@ func main() {
 	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.toml", "determine what config to use")
 	flag.Parse()
 
-	file, _ := os.Open(ConfigPath)
-	decoder := toml.NewDecoder(file)
-	if err := decoder.Decode(&configuration); err != nil {
-		log.Panic(err)
-	}
+	file, _ := ioutil.ReadFile(ConfigPath)
+	toml.Unmarshal(file, &configuration)
 
 	bot, err := tgbotapi.NewBotAPI(configuration.Telegram.TelegramBotToken)
 	if err != nil {
