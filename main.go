@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -28,13 +27,12 @@ func main() {
 	if err := decoder.Decode(&configuration); err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Using %s\n", configuration.TelegramBotToken)
+	log.Printf("Using %s\n", configuration.TelegramBotToken)
 
 	bot, err := tgbotapi.NewBotAPI(configuration.TelegramBotToken)
 	if err != nil {
 		log.Panic(err)
 	}
-
 	bot.Debug = configuration.debug
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -60,6 +58,11 @@ func main() {
 			msg.Text, _ = os.Hostname()
 		case "randomshit":
 			msg.Text, err = GetRandomShittyImage(update.Message.Text)
+			if err != nil {
+				log.Printf("Something went wrong: %s", err)
+			}
+		case "wallhaven":
+			msg.Text, err = GetWallFromWallhaven()
 			if err != nil {
 				log.Printf("Something went wrong: %s", err)
 			}
