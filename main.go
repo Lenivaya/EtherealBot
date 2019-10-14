@@ -2,10 +2,9 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
-
-	"io/ioutil"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pelletier/go-toml"
@@ -21,14 +20,7 @@ type Config struct {
 }
 
 func main() {
-	var ConfigPath string
-	configuration := Config{}
-
-	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.toml", "determine what config to use")
-	flag.Parse()
-
-	file, _ := ioutil.ReadFile(ConfigPath)
-	toml.Unmarshal(file, &configuration)
+	configuration := GetConfig()
 
 	bot, err := tgbotapi.NewBotAPI(configuration.Telegram.TelegramBotToken)
 	if err != nil {
@@ -76,4 +68,17 @@ func main() {
 
 		bot.Send(msg)
 	}
+}
+
+func GetConfig() *Config {
+	var configuration Config
+	var ConfigPath string
+
+	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.toml", "determine what config to use")
+	flag.Parse()
+
+	file, _ := ioutil.ReadFile(ConfigPath)
+	toml.Unmarshal(file, &configuration)
+
+	return &configuration
 }
