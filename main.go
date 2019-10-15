@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/pelletier/go-toml"
+	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
 type Telegram struct {
@@ -22,52 +23,34 @@ type Config struct {
 func main() {
 	configuration := GetConfig()
 
-	bot, err := tgbotapi.NewBotAPI(configuration.Telegram.TelegramBotToken)
+	bot, err := telebot.NewBot(telebot.Settings{
+		Token:  configuration.Telegram.TelegramBotToken,
+		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
+	})
+
 	if err != nil {
-		log.Panic(err)
-	}
-	bot.Debug = configuration.Telegram.debug
-	log.Printf("Using %s\n", configuration.Telegram.TelegramBotToken)
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-	updates, err := bot.GetUpdatesChan(u)
-	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
-	for update := range updates {
-		if update.Message == nil && !update.Message.IsCommand() {
-			continue
-		}
+	bot.Handle("/hello", func(message *telebot.Message) {
+		bot.Send(message.Sender, "hello world", telebot.ForceReply)
+	})
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+	bot.Handle("/randomshit", func(message *telebot.Message) {
+		randomshiturl, _ := GetRandomShittyImage(message.Text)
+		bot.Send(message.Sender, randomshiturl, &telebot.SendOptions{
+			ReplyTo: message,
+		})
+	})
 
-		switch update.Message.Command() {
-		case "help":
-			msg.Text = "This is help"
-		case "host":
-			msg.Text, _ = os.Hostname()
-		case "randomshit":
-			msg.Text, err = GetRandomShittyImage(update.Message.Text)
-			if err != nil {
-				log.Printf("Something went wrong: %s", err)
-			}
-		case "wallhaven":
-			msg.Text, err = GetWallFromWallhaven()
-			if err != nil {
-				log.Printf("Something went wrong: %s", err)
-			}
-		default:
-			msg.Text = "Sorry, i cant understand..."
-		}
+	bot.Handle("/wallhaven", func(message *telebot.Message) {
+		wallurl, _ := GetWallFromWallhaven()
+		bot.Send(message.Sender, wallurl, &telebot.SendOptions{
+			ReplyTo: message,
+		})
+	})
 
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		bot.Send(msg)
-	}
+	bot.Start()
 }
 
 func GetConfig() *Config {
