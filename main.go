@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,7 +14,6 @@ import (
 
 type Telegram struct {
 	TelegramBotToken string
-	debug            bool
 }
 
 type Config struct {
@@ -21,7 +21,7 @@ type Config struct {
 }
 
 func main() {
-	configuration := GetConfig()
+	configuration := getConfig()
 
 	bot, err := telebot.NewBot(telebot.Settings{
 		Token:  configuration.Telegram.TelegramBotToken,
@@ -30,22 +30,61 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
+	log.Print("Bot successfully started")
 
-	bot.Handle("/hello", func(message *telebot.Message) {
-		bot.Send(message.Sender, "hello world", telebot.ForceReply)
+	bot.Handle(telebot.OnText, func(message *telebot.Message) {
+		// all the text messages that weren't
+		// captured by existing handlers
+	})
+
+	bot.Handle("/pin", func(message *telebot.Message) {
+		adminlist, _ := bot.AdminsOf(message.Chat)
+		admin := checkAdmin(adminlist, message.Sender.Username)
+
+		if admin {
+			if message.ReplyTo == nil {
+				bot.Pin(message)
+			} else {
+				bot.Pin(message.ReplyTo)
+			}
+		}
+	})
+
+	bot.Handle("/invitelink", func(message *telebot.Message) {
+		link, err := bot.GetInviteLink(message.Chat)
+		if err != nil {
+			log.Printf("Something went wrong: %s", err)
+		}
+		bot.Send(message.Chat, link, &telebot.SendOptions{
+			ReplyTo: message,
+		})
+	})
+
+	bot.Handle("/id", func(message *telebot.Message) {
+		id := fmt.Sprintf("Your id: %d\nChat id: %d", message.Sender.ID, message.Chat.ID)
+		bot.Send(message.Chat, id, &telebot.SendOptions{
+			ReplyTo: message,
+		})
 	})
 
 	bot.Handle("/randomshit", func(message *telebot.Message) {
-		randomshiturl, _ := GetRandomShittyImage(message.Text)
-		bot.Send(message.Sender, randomshiturl, &telebot.SendOptions{
+		randomshiturl, err := GetRandomShittyImage(message.Text)
+		if err != nil {
+			log.Printf("Something went wrong: %s", err)
+		}
+		bot.Send(message.Chat, randomshiturl, &telebot.SendOptions{
 			ReplyTo: message,
 		})
 	})
 
 	bot.Handle("/wallhaven", func(message *telebot.Message) {
-		wallurl, _ := GetWallFromWallhaven()
-		bot.Send(message.Sender, wallurl, &telebot.SendOptions{
+		wallurl, err := GetWallFromWallhaven()
+		if err != nil {
+			log.Printf("Something went wrong: %s", err)
+		}
+		bot.Send(message.Chat, wallurl, &telebot.SendOptions{
 			ReplyTo: message,
 		})
 	})
@@ -53,7 +92,7 @@ func main() {
 	bot.Start()
 }
 
-func GetConfig() *Config {
+func getConfig() *Config {
 	var configuration Config
 	var ConfigPath string
 
@@ -64,4 +103,13 @@ func GetConfig() *Config {
 	toml.Unmarshal(file, &configuration)
 
 	return &configuration
+}
+
+func checkAdmin(adminlist []telebot.ChatMember, username string) bool {
+	for i := range adminlist {
+		if adminlist[i].User.Username == username {
+			return true
+		}
+	}
+	return false
 }
