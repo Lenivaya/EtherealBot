@@ -58,7 +58,7 @@ func GetRandomShittyImage(message string) (image string, err error) {
 }
 
 // Gets random wallpaper page from wallhaven
-func GetRandomWallFromWallhaven() (wallpage string, err error) {
+func GetRandomWallPageFromWallhaven() (wallpage string, err error) {
 	url := "https://wallhaven.cc/random"
 
 	resp, err := http.Get(url)
@@ -93,7 +93,7 @@ func GetRandomWallFromWallhaven() (wallpage string, err error) {
 
 // Gets a link of the wallpaper itself
 func GetWallFromWallhaven() (wallpaper string, err error) {
-	wallpage, err := GetRandomWallFromWallhaven()
+	wallpage, err := GetRandomWallPageFromWallhaven()
 	if err != nil {
 		return "", err
 	}
