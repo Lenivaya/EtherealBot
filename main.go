@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Lenivaya/EtherealBot/modules/images"
 	"github.com/pelletier/go-toml"
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
@@ -57,6 +58,7 @@ func main() {
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 		}
+
 		bot.Send(message.Chat, link, &telebot.SendOptions{
 			ReplyTo: message,
 		})
@@ -64,26 +66,29 @@ func main() {
 
 	bot.Handle("/id", func(message *telebot.Message) {
 		id := fmt.Sprintf("Your id: %d\nChat id: %d", message.Sender.ID, message.Chat.ID)
+
 		bot.Send(message.Chat, id, &telebot.SendOptions{
 			ReplyTo: message,
 		})
 	})
 
 	bot.Handle("/randomshit", func(message *telebot.Message) {
-		randomshiturl, err := GetRandomShittyImage(message.Text)
+		randomshiturl, err := images.GetRandomShittyImage(message.Text)
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 		}
+
 		bot.Send(message.Chat, randomshiturl, &telebot.SendOptions{
 			ReplyTo: message,
 		})
 	})
 
 	bot.Handle("/wallhaven", func(message *telebot.Message) {
-		wallurl, err := GetWallFromWallhaven()
+		wallurl, err := images.GetWallFromWallhaven()
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 		}
+
 		bot.Send(message.Chat, wallurl, &telebot.SendOptions{
 			ReplyTo: message,
 		})
