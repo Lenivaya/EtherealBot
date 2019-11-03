@@ -5,7 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/Lenivaya/EtherealBot/modules/images"
+	"github.com/Lenivaya/EtherealBot/modules/media/gifs"
+	"github.com/Lenivaya/EtherealBot/modules/media/images"
+	"github.com/Lenivaya/EtherealBot/modules/users"
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -30,7 +32,7 @@ func main() {
 
 	bot.Handle("/pin", func(message *telebot.Message) {
 		adminlist, _ := bot.AdminsOf(message.Chat)
-		admin := checkAdmin(adminlist, message.Sender.Username)
+		admin := users.CheckAdmin(adminlist, message.Sender.Username)
 
 		if admin {
 			if message.ReplyTo == nil {
@@ -60,6 +62,15 @@ func main() {
 		})
 	})
 
+	bot.Handle("/gif", func(message *telebot.Message) {
+		gifurl, _ := gifs.GetRandomGif(message.Text)
+		gif := &telebot.Video{File: telebot.FromURL(gifurl)}
+
+		bot.Send(message.Chat, gif, &telebot.SendOptions{
+			ReplyTo: message,
+		})
+	})
+
 	bot.Handle("/randomshit", func(message *telebot.Message) {
 		randomshiturl, err := images.GetRandomShittyImage(message.Text)
 		if err != nil {
@@ -83,13 +94,4 @@ func main() {
 	})
 
 	bot.Start()
-}
-
-func checkAdmin(adminlist []telebot.ChatMember, username string) bool {
-	for i := range adminlist {
-		if adminlist[i].User.Username == username {
-			return true
-		}
-	}
-	return false
 }

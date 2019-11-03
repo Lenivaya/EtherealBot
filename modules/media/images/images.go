@@ -14,10 +14,11 @@ import (
 func GetRandomShittyImage(message string) (image string, err error) {
 	var searchWord *string
 	var searchWordDefault = "cat"
-	if len(strings.SplitN(message, " ", 2)) != 2 {
+	args := strings.SplitN(message, " ", 2)
+	if len(args) != 2 {
 		searchWord = &searchWordDefault
 	} else {
-		for i, v := range strings.SplitN((message), " ", 2) {
+		for i, v := range args {
 			if i == 1 {
 				searchWord = &v
 				break
