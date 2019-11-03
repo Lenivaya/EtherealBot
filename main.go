@@ -1,25 +1,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"time"
 
 	"github.com/Lenivaya/EtherealBot/modules/images"
-	"github.com/pelletier/go-toml"
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
-
-type Telegram struct {
-	TelegramBotToken string
-}
-
-type Config struct {
-	Telegram Telegram
-}
 
 func main() {
 	configuration := getConfig()
@@ -95,19 +83,6 @@ func main() {
 	})
 
 	bot.Start()
-}
-
-func getConfig() *Config {
-	var configuration Config
-	var ConfigPath string
-
-	flag.StringVar(&ConfigPath, "c", os.Getenv("HOME")+"/.config/EtherealBot/config.toml", "determine what config to use")
-	flag.Parse()
-
-	file, _ := ioutil.ReadFile(ConfigPath)
-	toml.Unmarshal(file, &configuration)
-
-	return &configuration
 }
 
 func checkAdmin(adminlist []telebot.ChatMember, username string) bool {
