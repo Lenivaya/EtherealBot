@@ -28,12 +28,15 @@ func GetRandomShittyImage(message string) (image string, err error) {
 	url := fmt.Sprintf("http://www.google.com/search?q=%s&tbm=isch", *searchWord)
 	resp, err := http.Get(url)
 
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
 	if err != nil {
 		return "", err
 	}
 
-	if resp != nil && resp.StatusCode == 200 {
-		defer resp.Body.Close()
+	if resp.StatusCode == 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
 
 		re := regexp.MustCompile("src=\"(http[^\"]+)\"")
@@ -60,12 +63,15 @@ func GetRandomWallFromWallhaven() (wallpage string, err error) {
 
 	resp, err := http.Get(url)
 
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
 	if err != nil {
 		return "", err
 	}
 
-	if resp != nil && resp.StatusCode == 200 {
-		defer resp.Body.Close()
+	if resp.StatusCode == 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
 
 		re := regexp.MustCompile("href=\"(https://wallhaven.cc/w/\\w+)\"")
@@ -94,12 +100,15 @@ func GetWallFromWallhaven() (wallpaper string, err error) {
 
 	resp, err := http.Get(wallpage)
 
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
 	if err != nil {
 		return "", err
 	}
 
-	if resp != nil {
-		defer resp.Body.Close()
+	if resp.StatusCode == 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
 
 		re := regexp.MustCompile("src=\"(https://w.wallhaven.cc/full/\\w+\\/[\\w\\-\\.]+[\\-\\.][\\w\\-\\.]+)\"")
@@ -107,6 +116,5 @@ func GetWallFromWallhaven() (wallpaper string, err error) {
 
 		return matches[0][1], err
 	}
-
 	return "", err
 }
