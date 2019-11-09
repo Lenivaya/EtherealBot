@@ -51,7 +51,7 @@ func GetRandomShittyImage(message string) (image string, err error) {
 
 		rand.Seed(time.Now().UnixNano())
 
-		image = fmt.Sprint(Images[rand.Intn(len(Images))])
+		image := Images[rand.Intn(len(Images))]
 		return image, nil
 	}
 
@@ -85,7 +85,7 @@ func GetRandomWallPageFromWallhaven() (wallpage string, err error) {
 		}
 
 		rand.Seed(time.Now().UnixNano())
-		wall := fmt.Sprint(Walls[rand.Intn(len(Walls))])
+		wall := Walls[rand.Intn(len(Walls))]
 		return wall, err
 	}
 
