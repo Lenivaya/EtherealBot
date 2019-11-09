@@ -33,6 +33,11 @@
   name = "github.com/pelletier/go-toml"
   version = "1.5.0"
 
+[metadata.heroku]
+  root-package = "EtherealBot"
+  go-version = "1.13.4"
+  install = [ "./..." ]
+
 [prune]
   go-tests = true
   unused-packages = true
