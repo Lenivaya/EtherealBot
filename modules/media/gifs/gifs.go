@@ -6,26 +6,11 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
-	"strings"
 	"time"
 )
 
 func GetRandomGif(message string) (gif string, err error) {
-	var searchWord *string
-	var searchWordDefault = "cat"
-	args := strings.SplitN(message, " ", 2)
-	if len(args) != 2 {
-		searchWord = &searchWordDefault
-	} else {
-		for i, v := range args {
-			if i == 1 {
-				searchWord = &v
-				break
-			}
-		}
-	}
-
-	url := fmt.Sprintf("https://tenor.com/search/%s-gifs", *searchWord)
+	url := fmt.Sprintf("https://tenor.com/search/%s-gifs", message)
 
 	resp, err := http.Get(url)
 

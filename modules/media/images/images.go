@@ -6,27 +6,12 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
-	"strings"
 	"time"
 )
 
 // Return random url of bad quality image from google
 func GetRandomShittyImage(message string) (image string, err error) {
-	var searchWord *string
-	var searchWordDefault = "cat"
-	args := strings.SplitN(message, " ", 2)
-	if len(args) != 2 {
-		searchWord = &searchWordDefault
-	} else {
-		for i, v := range args {
-			if i == 1 {
-				searchWord = &v
-				break
-			}
-		}
-	}
-
-	url := fmt.Sprintf("http://www.google.com/search?q=%s&tbm=isch", *searchWord)
+	url := fmt.Sprintf("http://www.google.com/search?q=%s&tbm=isch", message)
 	resp, err := http.Get(url)
 
 	if resp != nil {

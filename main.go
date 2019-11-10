@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"strings"
+
 	"github.com/Lenivaya/EtherealBot/modules/media/gifs"
 	"github.com/Lenivaya/EtherealBot/modules/media/images"
 	"github.com/Lenivaya/EtherealBot/modules/users"
@@ -28,6 +30,15 @@ func main() {
 	bot.Handle(telebot.OnText, func(message *telebot.Message) {
 		// all the text messages that weren't
 		// captured by existing handlers
+	})
+
+	bot.Handle("/adminlist", func(message *telebot.Message) {
+		adminlist, _ := bot.AdminsOf(message.Chat)
+		admins := users.ListAdmins(adminlist)
+
+		bot.Send(message.Chat, admins, &telebot.SendOptions{
+			ReplyTo: message,
+		})
 	})
 
 	bot.Handle("/pin", func(message *telebot.Message) {
@@ -63,7 +74,7 @@ func main() {
 	})
 
 	bot.Handle("/gif", func(message *telebot.Message) {
-		gifurl, _ := gifs.GetRandomGif(message.Text)
+		gifurl, _ := gifs.GetRandomGif(trimCommand(message.Text))
 		gif := &telebot.Video{File: telebot.FromURL(gifurl)}
 
 		bot.Send(message.Chat, gif, &telebot.SendOptions{
@@ -72,7 +83,7 @@ func main() {
 	})
 
 	bot.Handle("/randomshit", func(message *telebot.Message) {
-		randomshiturl, err := images.GetRandomShittyImage(message.Text)
+		randomshiturl, err := images.GetRandomShittyImage(trimCommand(message.Text))
 		if err != nil {
 			log.Printf("Something went wrong: %s", err)
 		}
@@ -94,4 +105,17 @@ func main() {
 	})
 
 	bot.Start()
+}
+
+func trimCommand(message string) string {
+	var textDefault = "cat"
+	args := strings.SplitN(message, " ", 2)
+
+	for i, v := range args {
+		if i == 1 {
+			text := v
+			return text
+		}
+	}
+	return textDefault
 }
