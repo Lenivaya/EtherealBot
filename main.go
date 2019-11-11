@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
-
+	"net/url"
 	"strings"
+	"time"
 
 	"github.com/Lenivaya/EtherealBot/modules/media/gifs"
 	"github.com/Lenivaya/EtherealBot/modules/media/images"
 	"github.com/Lenivaya/EtherealBot/modules/users"
+	"github.com/Lenivaya/EtherealBot/modules/wikipedia"
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -30,6 +31,18 @@ func main() {
 	bot.Handle(telebot.OnText, func(message *telebot.Message) {
 		// all the text messages that weren't
 		// captured by existing handlers
+	})
+
+	bot.Handle("/wiki", func(message *telebot.Message) {
+		wikipages, _ := wikipedia.WikipediaAPI(urlEncoded(trimCommand(message.Text)))
+
+		for _, page := range wikipages {
+			bot.Send(message.Chat, page, &telebot.SendOptions{
+				ReplyTo: message,
+			})
+
+			time.Sleep(1 * time.Second)
+		}
 	})
 
 	bot.Handle("/adminlist", func(message *telebot.Message) {
@@ -118,4 +131,12 @@ func trimCommand(message string) string {
 		}
 	}
 	return textDefault
+}
+
+func urlEncoded(str string) string {
+	u, err := url.Parse(str)
+	if err != nil {
+		log.Printf("Something went wrong: %s", err)
+	}
+	return u.String()
 }
