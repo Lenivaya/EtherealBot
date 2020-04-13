@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"flag"
@@ -16,7 +16,7 @@ type Config struct {
 	Telegram Telegram
 }
 
-func getConfig() *Config {
+func GetConfig() *Config {
 	var configuration Config
 	var ConfigPath string
 

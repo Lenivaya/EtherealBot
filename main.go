@@ -11,11 +11,12 @@ import (
 	"github.com/Lenivaya/EtherealBot/modules/media/images"
 	"github.com/Lenivaya/EtherealBot/modules/media/wikipedia"
 	"github.com/Lenivaya/EtherealBot/modules/users"
+	"github.com/Lenivaya/EtherealBot/modules/config"
 	telebot "gopkg.in/tucnak/telebot.v2"
 )
 
 func main() {
-	configuration := getConfig()
+	configuration := config.GetConfig()
 
 	bot, err := telebot.NewBot(telebot.Settings{
 		Token:  configuration.Telegram.TelegramBotToken,
