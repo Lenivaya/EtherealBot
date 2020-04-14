@@ -25,7 +25,6 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 	log.Print("Bot successfully started")
 
@@ -134,8 +133,8 @@ func trimCommand(message string) string {
 	return textDefault
 }
 
-func urlEncoded(str string) string {
-	u, err := url.Parse(str)
+func urlEncoded(s string) string {
+	u, err := url.Parse(s)
 	if err != nil {
 		log.Printf("Something went wrong: %s", err)
 	}
